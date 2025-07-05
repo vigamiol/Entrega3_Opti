@@ -76,6 +76,7 @@ class Individual:
         self.p = p if p else Problem()
         self.dimension = self.p.dim
         self.x, self.y = self.p.random_solution()
+        self.c = self.p.get_costs(self.y)
 
     def is_feasible(self):
         return self.p.check(self.x, self.y)
@@ -99,13 +100,16 @@ class Individual:
                     best.x[j] + mutation_rate * random.gauss(0, 1), j)
                 self.y[j] = self.p.keep_domain_y(
                     best.y[j] + mutation_rate * random.gauss(0, 1), j)
+        # Actualizar costos después del movimiento
+        self.c = self.p.get_costs(self.y)
 
     def copy(self, other):
         self.x = other.x.copy()
         self.y = other.y.copy()
+        self.c = other.c.copy()
 
     def __str__(self):
-        return f"x: {self.x}, y: {self.y}, fitness: {self.fitness():.2f}"
+        return f"x: {self.x}, y: {self.y}, c: {self.c}, fitness: {self.fitness():.2f}"
 
 class Swarm:
     def __init__(self):
