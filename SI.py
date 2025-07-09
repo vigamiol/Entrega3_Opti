@@ -77,6 +77,9 @@ class Individual:
         self.dimension = self.p.dim
         self.x, self.y = self.p.random_solution()
         self.c = self.p.get_costs(self.y)
+        # Agregar propiedades para los objetivos
+        self.valorizacion = sum([self.x[j]*self.y[j] for j in range(self.dimension)])
+        self.costo = sum([self.x[j]*self.c[j] for j in range(self.dimension)])
 
     def is_feasible(self):
         return self.p.check(self.x, self.y)
@@ -102,11 +105,16 @@ class Individual:
                     best.y[j] + mutation_rate * random.gauss(0, 1), j)
         # Actualizar costos después del movimiento
         self.c = self.p.get_costs(self.y)
+        # Actualizar propiedades de valorización y costo
+        self.valorizacion = sum([self.x[j]*self.y[j] for j in range(self.dimension)])
+        self.costo = sum([self.x[j]*self.c[j] for j in range(self.dimension)])
 
     def copy(self, other):
         self.x = other.x.copy()
         self.y = other.y.copy()
         self.c = other.c.copy()
+        self.valorizacion = other.valorizacion
+        self.costo = other.costo
 
     def __str__(self):
         return f"x: {self.x}, y: {self.y}, c: {self.c}, fitness: {self.fitness():.2f}"
@@ -120,12 +128,15 @@ class Swarm:
         self.swarm = []
         self.g = None
         self.p = Problem()
+        self.all_evaluated_solutions = []  # Lista para almacenar todas las soluciones evaluadas
 
     def random(self):
         self.swarm = []
         for _ in range(self.n_individual):
             ind = Individual(self.p)
             self.swarm.append(ind)
+            # Agregar a la lista de todas las soluciones evaluadas
+            self.all_evaluated_solutions.append((ind.valorizacion, ind.costo))
         self.g = max(self.swarm, key=lambda ind: ind.fitness())
         self.show_results(0)
 
@@ -145,6 +156,8 @@ class Swarm:
                     tries += 1
                 if feasible:
                     self.swarm[i].copy(ind)
+                    # Agregar a la lista de todas las soluciones evaluadas
+                    self.all_evaluated_solutions.append((ind.valorizacion, ind.costo))
             self.g = max(self.swarm, key=lambda ind: ind.fitness())
             self.show_results(t)
 

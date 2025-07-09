@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from Entrega3_Opti.SI import Swarm, Individual # Importamos las clases necesarias
+from SI import Swarm, Individual # Importamos las clases necesarias
 
 # --- Funciones para la Frontera de Pareto (pueden estar aquí o en un util.py si se prefiere) ---
 def dominates(ind1, ind2):
@@ -97,17 +97,29 @@ if __name__ == "__main__":
     plt.legend()
 
     # Anotaciones para los ejes (opcional)
-    plt.annotate('Mayor Valorización',
-                 xy=(max(pareto_valorizaciones_sorted), min(pareto_costos_sorted)), # Aproximado al extremo de la frontera
-                 xytext=(max(pareto_valorizaciones_sorted) * 0.8, min(pareto_costos_sorted) * 1.5),
-                 arrowprops=dict(facecolor='black', shrink=0.05),
-                 bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.6))
+    if len(pareto_valorizaciones_sorted) > 1:
+        # Punto con mayor valorización en la frontera de Pareto
+        max_val_point = max(pareto_points, key=lambda x: x[0])
+        # Punto con menor costo en la frontera de Pareto
+        min_cost_point = min(pareto_points, key=lambda x: x[1])
+        
+        # Calcular offsets más seguros para el texto
+        val_range = max(valorizaciones_exploradas) - min(valorizaciones_exploradas)
+        cost_range = max(costos_explorados) - min(costos_explorados)
+        
+        plt.annotate('Mayor Valorización',
+                     xy=max_val_point,  # Apuntar exactamente al punto con mayor valorización
+                     xytext=(max_val_point[0] - val_range*0.2, max_val_point[1] + cost_range*0.1),
+                     arrowprops=dict(facecolor='black', shrink=0.05),
+                     bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.8),
+                     fontsize=10, ha='center')
 
-    plt.annotate('Menor Costo',
-                 xy=(min(pareto_valorizaciones_sorted), min(pareto_costos_sorted)), # Aproximado al extremo de la frontera
-                 xytext=(min(pareto_valorizaciones_sorted) * 1.2, min(pareto_costos_sorted) * 1.5),
-                 arrowprops=dict(facecolor='black', shrink=0.05),
-                 bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="k", lw=1, alpha=0.6))
+        plt.annotate('Menor Costo',
+                     xy=min_cost_point,  # Apuntar exactamente al punto con menor costo
+                     xytext=(min_cost_point[0] + val_range*0.1, min_cost_point[1] - cost_range*0.1),
+                     arrowprops=dict(facecolor='black', shrink=0.05),
+                     bbox=dict(boxstyle="round,pad=0.3", fc="lightblue", ec="k", lw=1, alpha=0.8),
+                     fontsize=10, ha='center')
 
 
     plt.show()
